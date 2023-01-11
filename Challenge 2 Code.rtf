@@ -1,0 +1,215 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 Sub VBA_Challenge()\
+\
+'Run macro through all worksheets\
+For Each ws In Worksheets\
+\
+    'Insert new headers for summary table\
+    ws.Cells(1, 9).Value = "Ticker"\
+    ws.Cells(1, 10).Value = "Yearly Change"\
+    ws.Cells(1, 11).Value = "Percent Change"\
+    ws.Cells(1, 12).Value = "Total Stock Volume"\
+    ws.Cells(1, 16).Value = "Ticker"\
+    ws.Cells(1, 17).Value = "Value"\
+    ws.Cells(2, 15).Value = "Greatest % increase"\
+    ws.Cells(3, 15).Value = "Greatest % decrease"\
+    ws.Cells(4, 15).Value = "Greatest total volume"\
+\
+    'Establish variables\
+    Dim Ticker As String\
+    Dim OpenPrice As Double\
+    Dim ClosePrice As Double\
+    Dim YearlyChange As Double\
+    Dim PercentChange As Double\
+    Dim TotalVolume As Double\
+    Dim LastRow As Variant\
+    Dim LastRow2 As Variant\
+    Dim LastRow3 As Variant\
+    Dim LastRow4 As Variant\
+    Dim LastRow5 As Variant\
+    Dim SummaryTableRow As Integer\
+    Dim i As Integer\
+    Dim j As Integer\
+    Dim k As Integer\
+    Dim l As Integer\
+    Dim m As Integer\
+    Dim i_Count As Integer\
+    Dim GreatestPercentIncrease As Double\
+    Dim GreatestPercentDecrease As Double\
+    Dim GreatestTotalVolume As Double\
+    Dim MaxPercentTicker As String\
+    Dim MinPercentTicker As String\
+    Dim MaxVolumeTicker As String\
+    \
+    'Set initial values\
+    TotalVolume = 0\
+    SummaryTableRow = 2\
+    i_Count = 0\
+    \
+    '----------------------\
+    'Populate Summary Table 1\
+    '----------------------\
+    \
+    'Count Rows\
+    LastRow = ws.Cells(Rows.Count, "A").End(xlUp).Row\
+    \
+    'Loop through all stock data\
+    For i = 2 To LastRow\
+    \
+        'Check for new ticker\
+        If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then\
+            \
+            'Grab OpenPrice\
+            OpenPrice = ws.Cells(i - i_Count, 3)\
+            \
+            'Grab ClosePrice\
+            ClosePrice = ws.Cells(i, 6).Value\
+        \
+            'Set Ticker and print to summary table\
+            Ticker = ws.Cells(i, 1).Value\
+            ws.Range("I" & SummaryTableRow).Value = Ticker\
+            \
+            'Calculate YearlyChange and print to summary table\
+            YearlyChange = OpenPrice - ClosePrice\
+            ws.Range("J" & SummaryTableRow).Value = YearlyChange\
+            \
+            'Calculate PercentChange and print to summary table\
+            PercentChange = YearlyChange / OpenPrice\
+            ws.Range("K" & SummaryTableRow).Value = PercentChange\
+        \
+            'Add volume to TotalVolume and print TotalVolume to summary table\
+            TotalVolume = TotalVolume + ws.Cells(i, 7).Value\
+            ws.Range("L" & SummaryTableRow).Value = TotalVolume\
+            \
+            'Add one to SummaryTableRow\
+            SummaryTableRow = SummaryTableRow + 1\
+            \
+            'Reset TotalVolume and i_Count\
+            TotalVolume = 0\
+            i_Count = 0\
+        \
+        'If next ticker is the same as previous\
+        Else\
+        \
+        'Add volume to TotalVolume\
+        TotalVolume = TotalVolume + ws.Cells(i, 7).Value\
+        \
+        'Add 1 to i_Count\
+        i_Count = i_Count + 1\
+        \
+        End If\
+        \
+    Next i\
+    \
+    '----------------------\
+    'Populate Summary Table 2\
+    '----------------------\
+    \
+    'Find greatest % increase and print to summary table\
+    GreatestPercentIncrease = ws.Application.WorksheetFunction.Max(ws.Range("K:K"))\
+    ws.Cells(2, 17).Value = GreatestPercentIncrease\
+    \
+    'Find greatest % decrese and print to summary table\
+    GreatestPercentDecrease = ws.Application.WorksheetFunction.Min(ws.Range("K:K"))\
+    ws.Cells(3, 17).Value = GreatestPercentDecrease\
+        \
+    'Find greatest total volume and print to summary table\
+     GreatestTotalVolume = ws.Application.WorksheetFunction.Max(ws.Range("L:L"))\
+     ws.Cells(4, 17).Value = GreatestTotalVolume\
+     \
+    'Retrieve greatest % increase ticker and print to summary table\
+    LastRow2 = ws.Cells(Rows.Count, "K").End(xlUp).Row\
+    \
+    For j = 2 To LastRow2\
+        \
+        'Check if Greatest % Increase\
+        If ws.Cells(j, 11).Value = GreatestPercentIncrease Then\
+        \
+        'Set max percent ticker and print ticker to summary table\
+        MaxPercentTicker = ws.Cells(j, 9).Value\
+        ws.Cells(2, 16).Value = MaxPercentTicker\
+        \
+        End If\
+        \
+    Next j\
+        \
+    'Retrieve greatest % decrease ticker and print to summary table\
+    LastRow3 = ws.Cells(Rows.Count, "K").End(xlUp).Row\
+     \
+     For k = 2 To LastRow3\
+        \
+        'Check if Greatest % Decrease\
+        If ws.Cells(k, 11).Value = GreatestPercentDecrease Then\
+        \
+        'Set min percent ticker and print ticker to summary table\
+        MinPercentTicker = ws.Cells(k, 9).Value\
+        ws.Cells(3, 16).Value = MinPercentTicker\
+        \
+        End If\
+        \
+    Next k\
+     \
+    'Retrieve greatest volume ticker and print to summary table\
+    LastRow4 = ws.Cells(Rows.Count, "L").End(xlUp).Row\
+    \
+    For l = 2 To LastRow4\
+    \
+        'Check if Greatest Volume\
+        If ws.Cells(l, 12).Value = GreatestTotalVolume Then\
+        \
+        'Set max volume ticker and print to summary table\
+        MaxVolumeTicker = ws.Cells(l, 9).Value\
+        ws.Cells(4, 16).Value = MaxVolumeTicker\
+    \
+        End If\
+        \
+    Next l\
+\
+    '---------\
+    'Formatting\
+    '---------\
+    \
+    'Auto fit all columns\
+    ws.Columns("I:Q").AutoFit\
+    \
+    'Format cell color for Yearly Change column ("J") based on respective cell value\
+    LastRow5 = ws.Cells(Rows.Count, "J").End(xlUp).Row\
+    \
+    For m = 2 To LastRow5\
+    \
+        'Check if positive or negative\
+        If ws.Cells(m, 10).Value > 0 Then\
+    \
+        'Color cell green\
+        ws.Cells(m, 10).Interior.ColorIndex = 4\
+        \
+        Else\
+    \
+        'Color cell red\
+        ws.Cells(m, 10).Interior.ColorIndex = 3\
+        \
+        End If\
+    \
+    Next m\
+    \
+    'Format Percent Change column ("K") to percentage\
+    ws.Columns("K").NumberFormat = "0.00%"\
+    \
+    'Format Greatest % cells (Q2 & Q3) to percentage\
+    ws.Range("Q2:Q3").NumberFormat = "0.00%"\
+\
+Next ws\
+\
+    'Indicate macros are done\
+    MsgBox ("Analysis is complete")\
+\
+End Sub\
+    \
+    \
+}
